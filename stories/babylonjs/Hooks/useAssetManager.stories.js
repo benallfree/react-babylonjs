@@ -1,6 +1,6 @@
 import React, { Suspense, useState, useMemo, useRef, useLayoutEffect } from 'react';
 import { Engine, Scene, useAssetManager, TaskType, useBeforeRender } from '../../../dist/react-babylonjs';
-import { Vector3, Color4, Color3, Axis } from '@babylonjs/core';
+import { Vector3, Color4, Color3 } from '@babylonjs/core';
 import '../../style.css';
 
 export default { title: 'Hooks' };
@@ -10,7 +10,8 @@ const pointCloudAssets = [{ taskType: TaskType.Binary, url: 'assets/kitti/000000
 
 const MyPCS = () => {
   const pcsRef = useRef(null);
-  const [result] = useAssetManager(pointCloudAssets);
+  const assetManagerResult = useAssetManager(pointCloudAssets);
+
   const [pcs, setPcs] = useState(null);
   const [pcsMesh, setPcsMesh] = useState(null);
 
@@ -21,8 +22,8 @@ const MyPCS = () => {
   }, [pcsRef]);
 
   useMemo(() => {
-    if (result && pcs) {
-      const floats = new Float32Array(result.tasks[0].data);
+    if (assetManagerResult && pcs) {
+      const floats = new Float32Array(assetManagerResult.tasks[0].data);
       const POINTS_PER_FLOAT = 4;
       const numPoints = floats.length / POINTS_PER_FLOAT;
 
@@ -43,7 +44,7 @@ const MyPCS = () => {
         setPcsMesh(pcs.mesh);
       })
     }
-  }, [result, pcsRef.current])
+  }, [assetManagerResult, pcsRef.current])
 
   return <pointsCloudSystem ref={pcsRef} name='my-points-cloud' pointSize={2}>
     {pcsMesh &&

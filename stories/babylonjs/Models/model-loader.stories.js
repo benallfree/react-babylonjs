@@ -1,10 +1,11 @@
 import React, { Suspense, useRef, useContext, useMemo } from 'react';
 import '@babylonjs/inspector';
-import { Engine, Scene, useBeforeRender } from '../../../dist/react-babylonjs';
-import { TaskType, AssetManagerContextProvider, AssetManagerContext, useAssetManager } from 'react-babylonjs-loaders';
 import { Vector3 } from '@babylonjs/core';
 import { Control } from '@babylonjs/gui';
-import '../../style.css';
+
+import { Engine, Scene, useBeforeRender, TaskType, AssetManagerContextProvider, AssetManagerContext, useAssetManager } from '../../../dist/react-babylonjs';
+
+// import '../../style.css';
 
 export default { title: 'Models' };
 

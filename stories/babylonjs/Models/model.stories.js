@@ -1,13 +1,14 @@
 import React, { Component} from 'react';
 import '@babylonjs/inspector';
-import { Engine, Scene } from '../../../dist/react-babylonjs';
+
 import { Vector3, Color3 } from '@babylonjs/core';
 import { ActionManager, SetValueAction } from '@babylonjs/core/Actions';
-import { SceneLoaderContextProvider } from 'react-babylonjs-loaders';
+
+import { Engine, Scene } from '../../../dist/react-babylonjs';
 
 import ScaledModelWithProgress from '../ScaledModelWithProgress';
 
-import '../../style.css';
+// import '../../style.css';
 
 export default { title: 'Models' };
 

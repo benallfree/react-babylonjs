@@ -5,8 +5,7 @@ module.exports = {
     stories: ['../stories/**/*.stories.[tj]s'],
     addons: [
         '@storybook/addon-actions/register',
-        '@storybook/addon-storysource/register',
-        '@storybook/addon-docs',
+        '@storybook/addon-storysource/register'
     ],
     webpackFinal: async (config, { configType }) => {
       config.resolve.alias['react-babylonjs'] = path.resolve(__dirname, '../dist/react-babylonjs')

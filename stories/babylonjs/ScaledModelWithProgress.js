@@ -1,26 +1,30 @@
-import React, { Suspense, useContext, useEffect } from 'react'
-import { useSceneLoader, SceneLoaderContextProvider, SceneLoaderContext } from 'react-babylonjs-loaders';
-import { SceneContext } from '../../dist/react-babylonjs';
-
+import React, { Suspense, useContext, useEffect, useRef } from 'react'
 import { Vector3, Matrix, Color3 } from '@babylonjs/core/Maths/math'
+
+import { useSceneLoader, useScene, SceneLoaderContextProvider, SceneLoaderContext, SceneContext } from '../../dist/react-babylonjs';
 
 // try with later versions of RHL to get hooks working here:
 // const [loadProgress, updateProgress] = useState(0)
 const MyModel = (props) => {
-
-  const sceneContext = useContext(SceneContext);
-  console.log('scene context in MyModel:', sceneContext);
 
   const sceneLoaderResults = useSceneLoader(props.rootUrl, props.sceneFilename, undefined, {
     scaleToDimension: props.scaleTo,
     reportProgress: true
   })
 
-  console.log('model loaded', sceneLoaderResults);
+  const scene = useScene();
+  const modelLoaded = useRef(false);
+  if (props.onModelLoaded && !modelLoaded.current) {
+      modelLoaded.current = true;
+      props.onModelLoaded(sceneLoaderResults, { scene });
+  }
+
+  if (props.position) {
+    sceneLoaderResults.rootMesh.position = props.position;
+  }
 
   useEffect(() => {
     return () => {
-      console.log('disposing model.');
       sceneLoaderResults.dispose();
     }
   })
@@ -31,7 +35,6 @@ const MyModel = (props) => {
 const ProgressFallback = (props) => {
 
   const sceneContext = useContext(SceneContext);
-  console.log('scene context:', sceneContext);
 
   const sceneLoaderContext = useContext(SceneLoaderContext);
 
@@ -42,8 +45,6 @@ const ProgressFallback = (props) => {
       ? progress.loaded / progress.total
       : progress.loaded / 10000; // TODO: provide option to input file size for proper loading.
   }
-
-  console.log('scene loader context:', loadProgress);
 
   return (
     <transformNode name='load-mesh' rotation={props.rotation} position={props.center}>
@@ -62,12 +63,11 @@ const ProgressFallback = (props) => {
 
 const ScaledModelWithProgress = (props) => {
   const sceneContext = useContext(SceneContext);
-  console.log('scene context:', sceneContext);
 
   return (
     <SceneLoaderContextProvider>
       <Suspense fallback= {<ProgressFallback progressBarColor={props.progressBarColor} center={props.center} rotation={props.rotation} scaleTo={props.scaleTo} />}>
-          <MyModel position={props.center} rootUrl={props.rootUrl} sceneFilename={props.sceneFilename} scaleTo={props.scaleTo} />
+          <MyModel position={props.center} rootUrl={props.rootUrl} sceneFilename={props.sceneFilename} scaleTo={props.scaleTo} onModelLoaded={props.onModelLoaded} />
       </Suspense>
     </SceneLoaderContextProvider>
   )

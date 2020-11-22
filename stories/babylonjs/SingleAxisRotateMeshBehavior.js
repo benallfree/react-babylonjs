@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { HostWithEvents, withBabylonJS }  from '../../dist/react-babylonjs'
+import { HostWithEvents }  from '../../dist/react-babylonjs'
 import { Axis } from '@babylonjs/core/Maths/math'
 
 class SingleAxisRotateMeshBehavior extends Component {
@@ -44,4 +44,4 @@ SingleAxisRotateMeshBehavior.propTypes = {
   axis: PropTypes.object
 }
 
-export default withBabylonJS(SingleAxisRotateMeshBehavior)
+export default SingleAxisRotateMeshBehavior;

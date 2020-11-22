@@ -106,7 +106,7 @@ const addHostElement = (className: string, babylonjsClassDeclaration: ClassDecla
   }
 }
 
-// used previously for adding "model" as a host element for <Model />, but we removed @babylonjs/loaders from this project.
+// TODO: restore MODEL
 // const addCustomHostElement = (className: string, type: string): void => {
 //   if (REACT_EXPORTS.has(className)) {
 //     console.error('Found existing export:', className); // would happen in BabylonJS added class with same name
@@ -125,7 +125,7 @@ const enumMap: Map<string, string> = new Map<string, string>();
 let ENUMS_LIST: string[] = [];
 const PROPS_EXPORTS: string[] = []; // used to put all props in single import.
 
-// These are the base/factory classes we used to generate everything.  Comment them out to skip generation (you must keep "Node", though)
+// These are the base/factory classes we used to generate everything.
 let classesOfInterest: Map<String, ClassNameSpaceTuple | undefined> = new Map<String, ClassNameSpaceTuple | undefined>();
 
 // always needed:
@@ -135,10 +135,10 @@ classesOfInterest.set("Mesh", undefined);
 classesOfInterest.set("AbstractScene", undefined);
 classesOfInterest.set("Scene", undefined);
 
-// decides what is generated
+// decides what is generated (useful to remove some to speed up debugging)
 classesOfInterest.set("Camera", undefined);
-classesOfInterest.set("Material", undefined);
 classesOfInterest.set("MeshBuilder", undefined)
+classesOfInterest.set("Material", undefined);
 classesOfInterest.set("Light", undefined);
 classesOfInterest.set("Control", undefined);
 classesOfInterest.set("Control3D", undefined);
@@ -152,7 +152,7 @@ classesOfInterest.set("PhysicsImpostor", undefined);
 classesOfInterest.set("VRExperienceHelper", undefined);
 classesOfInterest.set("DynamicTerrain", undefined);
 classesOfInterest.set("EffectLayer", undefined);
-classesOfInterest.set("Behavior", undefined);
+classesOfInterest.set("Behavior", undefined); // TODO: have behaviors generated together (hashmap)
 classesOfInterest.set("PointsCloudSystem", undefined);
 
 /**
@@ -744,7 +744,7 @@ const writePropertyAsUpdateFunction = (propsProperties: OptionalKind<PropertySig
   })
 
   if (GENERATE_KEBAB_ACCESSORS && propsType === 'BabylonjsCoreVector3') {
-    ['x','y','z'].forEach(prop => {
+    ['x', 'y', 'z'].forEach(prop => {
       propsProperties.push({
         name: `'${propertyName}-${prop}'`,
         type: 'number',
@@ -933,7 +933,7 @@ const addPropsAndHandlerClasses = (generatedCodeSourceFile: SourceFile, generate
     let addedProperties = new Set<string>();
 
     // These properties break out to specific method handlers
-    type PropertyKind = 'BabylonjsCoreThinTexture' | 'BabylonjsCoreColor3' | 'BabylonjsCoreColor4' | 'BabylonjsCoreVector3' | 'BabylonjsCoreFresnelParameters' | 'BabylonjsCoreQuaternion' |
+    type PropertyKind = 'BabylonjsCoreBaseTexture' | 'BabylonjsCoreColor3' | 'BabylonjsCoreColor4' | 'BabylonjsCoreVector3' | 'BabylonjsCoreFresnelParameters' | 'BabylonjsCoreQuaternion' |
       'BabylonjsGuiControl' | 'number[]' | 'lambda' | 'observable' | 'method' | 'primitive' | 'object';
     type NameAndType = {
       name: string
@@ -953,11 +953,11 @@ const addPropsAndHandlerClasses = (generatedCodeSourceFile: SourceFile, generate
         })
         monkeyPatchInterface.getMethods().forEach(method => {
           const type = getMethodType(method, [generatedCodeSourceFile, generatedPropsSourceFile]);
-  
+
           if (type === null) {
             return; // skip
           }
-          const methodName = method.getName()
+          // const methodName = method.getName()
           setMethods.push(method);
         })
       })
@@ -1002,7 +1002,7 @@ const addPropsAndHandlerClasses = (generatedCodeSourceFile: SourceFile, generate
           })
         } else {
           switch (type) {
-            case 'BabylonjsCoreThinTexture':
+            case 'BabylonjsCoreBaseTexture':
             case 'BabylonjsCoreColor3':
             case 'BabylonjsCoreColor4': // Color4.equals() not added until PR #5517
             case 'BabylonjsCoreVector3':
@@ -1017,7 +1017,7 @@ const addPropsAndHandlerClasses = (generatedCodeSourceFile: SourceFile, generate
               });
 
               if (GENERATE_KEBAB_ACCESSORS && type === 'BabylonjsCoreVector3') {
-                ['x','y','z'].forEach(prop => {
+                ['x', 'y', 'z'].forEach(prop => {
                   propsToCheck.push({
                     name: `${propertyName}-${prop}`,
                     type: 'number',
@@ -1116,7 +1116,7 @@ const addPropsAndHandlerClasses = (generatedCodeSourceFile: SourceFile, generate
             case 'BabylonjsCoreFresnelParameters':
               writer.writeLine(`checkFresnelParametersDiff(oldProps.${propToCheck.name}, newProps.${propToCheck.name}, '${propToCheck.name}', changedProps)`);
               break;
-            case 'BabylonjsCoreThinTexture':
+            case 'BabylonjsCoreBaseTexture':
               writer.writeLine(`checkTextureDiff(oldProps.${propToCheck.name}, newProps.${propToCheck.name}, '${propToCheck.name}', changedProps)`)
               break;
             case 'observable':
@@ -1144,7 +1144,7 @@ const addPropsAndHandlerClasses = (generatedCodeSourceFile: SourceFile, generate
   const propsClassName = `${ClassNamesPrefix}${classNameToGenerate}Props`;
 
   PROPS_EXPORTS.push(propsClassName);
-  writeTypeAlias(generatedPropsSourceFile, propsClassName, typeProperties.sort((a, b) => 
+  writeTypeAlias(generatedPropsSourceFile, propsClassName, typeProperties.sort((a, b) =>
     (a.name.startsWith('\'') ? a.name.substr(1) : a.name).localeCompare(b.name.startsWith('\'') ? b.name.substr(1) : b.name)
   ), intersectsWith);
 }
@@ -1449,6 +1449,12 @@ const generateCode = async () => {
     namedImports: ['CustomProps']
   });
 
+  // TOD: restore MODEL
+  // generatedPropsSourceFile.addImportDeclaration({
+  //   moduleSpecifier: './model',
+  //   namedImports: ['ModelProps']
+  // })
+
   const mainTypeAlias = generatedPropsSourceFile.addTypeAlias({
     name: 'BabylonNode',
     type: Writers.objectType({
@@ -1493,7 +1499,7 @@ const generateCode = async () => {
 
   // This includes Node, which is base class for ie: Camera, Mesh, etc. (inheriting from Node would add new things like TextureDome)
   createClassesDerivedFrom(generatedCodeSourceFile, generatedPropsSourceFile, classesOfInterest.get("TransformNode")!, { isNode: true }, undefined);
-  createClassesInheritedFrom(generatedCodeSourceFile, generatedPropsSourceFile, classesOfInterest.get("AbstractMesh")!, () => ({isNode: true, acceptsMaterials: true, isMesh: true}));
+  createClassesInheritedFrom(generatedCodeSourceFile, generatedPropsSourceFile, classesOfInterest.get("AbstractMesh")!, () => ({ isNode: true, acceptsMaterials: true, isMesh: true }));
 
   const extra = (newClassDeclaration: ClassDeclaration, originalClassDeclaration: ClassDeclaration) => {
     // consider having targetable as metadata.
@@ -1635,6 +1641,7 @@ const generateCode = async () => {
   }
 
   // add our own custom components - needed for TypeScript compatibility:
+  // TODO: restore MODEL
   // addCustomHostElement('Model', 'ModelProps & BabylonNode<BabylonjsCoreAbstractMesh>');
 
   addReactExports(generatedCodeSourceFile);
@@ -1695,10 +1702,10 @@ const generateCode = async () => {
         .map(([alias, className]) =>
           `${classToIntrinsic(className)}:'${className}'`)
         .join(',\n')},
-          ${createdFactoryClasses.map(meshName =>
+            ${createdFactoryClasses.map(meshName =>
           `${classToIntrinsic(meshName)}:'${meshName}'`)
           .join(',\n')}
-        }`
+          }`
     }]
   });
 

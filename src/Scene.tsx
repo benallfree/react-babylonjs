@@ -61,8 +61,6 @@ const Scene: React.FC<SceneProps> = (props: SceneProps, context?: any) => {
 
   const prevPropsRef: MutableRefObject<Partial<SceneProps>> = useRef<Partial<SceneProps>>({});
 
-  console.log('rendering scene.');
-
   // initialize babylon scene
   useEffect(() => {
     const scene = new BabylonJSScene(engine!, props.sceneOptions)
@@ -161,8 +159,6 @@ const Scene: React.FC<SceneProps> = (props: SceneProps, context?: any) => {
       scene.enablePhysics(props.enablePhysics[0], props.enablePhysics[1]);
     }
 
-    console.log('updating container', scene, sceneReady, sceneIsReady);
-
     // update the root Container
     renderer.updateContainer(
       <SceneContext.Provider value={{
@@ -203,7 +199,6 @@ const Scene: React.FC<SceneProps> = (props: SceneProps, context?: any) => {
 
     updateScene(props, prevPropsRef, scene, propsHandler);
 
-    console.log('rendering scene after update.', sceneReady);
     renderer.updateContainer(
       <SceneContext.Provider value={{
         scene,

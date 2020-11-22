@@ -286,8 +286,6 @@ const ReactBabylonJSHostConfig: HostConfig<
         // TODO: Check source for difference between hostContext and rootContainerInstance.
         const { canvas, engine, scene } = rootContainerInstance
 
-        console.log('createInstance: 1 creating:', type);
-
         if (customTypes.indexOf(type) !== -1) {
             let metadata = {
                 className: type,
@@ -391,7 +389,7 @@ const ReactBabylonJSHostConfig: HostConfig<
                         console.warn(`On ${type} you are missing a non-optional parameter '${generatedParameter.name}' of type '${generatedParameter.type}'`)
                     }
 
-                    return value
+                    return value;
                 }
             })
 
@@ -412,6 +410,8 @@ const ReactBabylonJSHostConfig: HostConfig<
                     } else {
                         console.error("metadata defines (or does not) a namespace that is known", createInfoArgs.namespace)
                     }
+                } else {
+                  babylonObject = {}; // deferred instance will assign,proto and swap places when created.
                 }
             }
         }
@@ -464,7 +464,6 @@ const ReactBabylonJSHostConfig: HostConfig<
 
         let createdReference: DecoratedInstance<unknown> = decorateHostInstance(babylonObject, fiberObject, metadata, customProps, lifecycleListener);
 
-        console.log('createInstance created:', createdReference);
         Object.defineProperty(createdReference, 'hostInstance', { get: function() { 
           console.warn('hostInstance (from ref) removed since v3.0 (will be deprecated)')
           return createdReference;
@@ -482,7 +481,7 @@ const ReactBabylonJSHostConfig: HostConfig<
         if (metadata.delayCreation !== true) {
             applyInitialPropsToInstance(createdReference, props);
         } else {
-            console.log('applying deferred creation props to:', createdReference);
+            // console.log('applying deferred creation props to:', createdReference);
             createdReference.__rbs.deferredCreationProps = props;
         }
         return createdReference;
@@ -567,7 +566,7 @@ const ReactBabylonJSHostConfig: HostConfig<
     },
 
     commitUpdate(instance: HostCreatedInstance<unknown>, updatePayload: UpdatePayload, type: string /* old + new props are extra params here */) {
-        console.log('committing update:', instance, updatePayload, type);
+        // console.log('committing update:', instance, updatePayload, type);
         if (updatePayload !== null) {
             updatePayload.forEach((update: PropertyUpdate) => {
                 if (instance) {

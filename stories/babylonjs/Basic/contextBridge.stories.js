@@ -15,7 +15,7 @@ const ThemedBox = () => {
     const ctx = React.useContext(ThemeContext);
     return (
       <box name={ctx.name} position={ctx.position}>
-          <standardMaterial diffuseColor={ctx.color} specularColor={Color3.Black()} />
+          <standardMaterial name={`mat-${ctx.name}`} diffuseColor={ctx.color} specularColor={Color3.Black()} />
       </box>
     );
   };

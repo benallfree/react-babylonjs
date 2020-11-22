@@ -14,31 +14,37 @@ export default class PhysicsImpostorLifecycleListener extends DeferredCreationLi
     super(scene, props)
   }
 
-  createInstance = (instance: DecoratedInstance<PhysicsImpostor>, scene: Scene, props: any) : Nullable<PhysicsImpostor> => {
+  createInstance = (instance: DecoratedInstance<PhysicsImpostor>, scene: Scene, props: any): Nullable<PhysicsImpostor> => {
     if (!this._parent) {
       return null;
     }
     // these should be set from the props handler.  TODO: test.
     const options: PhysicsImpostorParameters = props._options // constructor has a default { mass: 0 }
 
-    // this will break something maybe as types will not match (also only copies own properties?)
-    Object.assign(instance, new PhysicsImpostor(this._parent, props.type, options, this.scene!));
+    // TODO: look into assigning proto as well (also only copies own properties?)
+    const result = new PhysicsImpostor(this._parent, props.type, options, this.scene!)
+    this.assignFromInstance(instance, result);
+
+    // hot swap in physics engine the impostors (brittle, but fast)  :(
+    const impostors = (result as any)._physicsEngine._impostors as any[];
+    var index = impostors.indexOf(result);
+    impostors[index] = instance;
+
     instance.object = this._parent;
     (this._parent as any).physicsImpostor = instance;
-    // TODO: need to assign deferredCreationProps (@see ShadowGeneratorLifecycleListener).
-    
+
     return instance;
   }
 
   onParented(parent: DecoratedInstance<IPhysicsEnabledObject>, child: DecoratedInstance<unknown>): any {
-      // IPhysicsEnabledObject requires only position and rotationQuaternion
-      if (parent.position === undefined || parent.rotationQuaternion === undefined) {
-          console.warn('PhysicsImpostor is parented to an element that does not appear to implement IPhysicsEnabledObject');
-      }
-      this._parent = parent;
+    // IPhysicsEnabledObject requires only position and rotationQuaternion
+    if (parent.position === undefined || parent.rotationQuaternion === undefined) {
+      console.warn('PhysicsImpostor is parented to an element that does not appear to implement IPhysicsEnabledObject');
+    }
+    this._parent = parent;
   }
 
   onChildAdded(child: DecoratedInstance<any>, parent: DecoratedInstance<any>): any { /* empty */ }
 
-  onUnmount(): void {/* empty */}
+  onUnmount(): void {/* empty */ }
 }

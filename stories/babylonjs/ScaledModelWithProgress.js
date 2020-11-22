@@ -23,19 +23,21 @@ const MyModel = (props) => {
     sceneLoaderResults.rootMesh.position = props.position;
   }
 
+  if (props.rotation) {
+    sceneLoaderResults.rootMesh.rotation = props.rotation;
+  }
+
   useEffect(() => {
     return () => {
+      console.log('disposing the sceneloader results.')
       sceneLoaderResults.dispose();
     }
-  })
+  }, []);
 
   return null;
 }
 
 const ProgressFallback = (props) => {
-
-  const sceneContext = useContext(SceneContext);
-
   const sceneLoaderContext = useContext(SceneLoaderContext);
 
   let loadProgress = 0;
@@ -62,12 +64,10 @@ const ProgressFallback = (props) => {
 }
 
 const ScaledModelWithProgress = (props) => {
-  const sceneContext = useContext(SceneContext);
-
   return (
     <SceneLoaderContextProvider>
       <Suspense fallback= {<ProgressFallback progressBarColor={props.progressBarColor} center={props.center} rotation={props.rotation} scaleTo={props.scaleTo} />}>
-          <MyModel position={props.center} rootUrl={props.rootUrl} sceneFilename={props.sceneFilename} scaleTo={props.scaleTo} onModelLoaded={props.onModelLoaded} />
+          <MyModel position={props.center} rootUrl={props.rootUrl} sceneFilename={props.sceneFilename} scaleTo={props.scaleTo} rotation={props.modelRotation} onModelLoaded={props.onModelLoaded} />
       </Suspense>
     </SceneLoaderContextProvider>
   )

@@ -73,11 +73,6 @@ const useSceneLoaderWithCache = (): (rootUrl: string, sceneFilename: string, plu
 
         const hookScene = useScene();
 
-        console.log('useScene', useScene, hookScene);
-
-        const fullContext = useContext(SceneContext);
-        console.log('full context:', fullContext);
-
         if (opts.scene === undefined && hookScene === null) {
             throw new Error('useSceneLoader can only be used inside a Scene component (or pass scene as an option)')
         }
@@ -146,7 +141,7 @@ const useSceneLoaderWithCache = (): (rootUrl: string, sceneFilename: string, plu
 
                         const originalDispose = loadedModel.dispose;
                         loadedModel.dispose = () => {
-                            console.log('Clearing cache (cannot re-use meshes).');
+                            // console.log('Clearing cache (cannot re-use meshes).');
                             suspenseCache[suspenseKey] = undefined;
                             originalDispose.call(loadedModel);
                         }

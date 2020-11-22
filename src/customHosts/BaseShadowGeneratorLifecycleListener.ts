@@ -24,9 +24,15 @@ export default abstract class BaseShadowGeneratorLifecycleListener<T extends Sha
 
     while (tmp !== null) {
       if (tmp.__rbs.metadata.isShadowLight) {
-        // console.log(`Creating ${this.generatorType}  size: ${props.mapSize} with light`, tmp);
-        result = this.createShadowGenerator(props.mapSize, tmp as DecoratedInstance<DirectionalLight>, props.useFullFloatFirst);
-        Object.assign(instance, result);
+        const shadowLight = tmp as DecoratedInstance<DirectionalLight>;
+        // console.log(`Creating ${this.generatorType}  size: ${props.mapSize} with light`, shadowLight);
+        result = this.createShadowGenerator(props.mapSize, shadowLight as DecoratedInstance<DirectionalLight>, props.useFullFloatFirst);
+        this.assignFromInstance(instance, result);
+
+        // result.dispose();
+        (shadowLight as any)._shadowGenerator = instance;
+        // (instance as any)._initializeGenerator();
+        // (instance as any)._applyFilterValues();
         break;
       }
       tmp = tmp.__rbs.parent

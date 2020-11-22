@@ -78,7 +78,7 @@ class ReactBabylonjsEngine extends React.Component<EngineProps, EngineState> {
     })
 
     this.engine.onContextLostObservable.add((eventData: ThinEngine) => {
-      console.log('context loss observable from Engine: ', eventData);
+      console.warn('context loss observable from Engine: ', eventData);
     })
 
     window.addEventListener('resize', this.onResizeWindow)

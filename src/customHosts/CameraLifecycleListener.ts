@@ -14,7 +14,7 @@ export default class CameraLifecycleListener implements LifecycleListener<Camera
   }
 
   onParented(parent: DecoratedInstance<unknown>, child: DecoratedInstance<unknown>): any {
-    console.log('camera parented:', parent, child);
+    // console.log('camera parented:', parent, child);
     if (parent.__rbs.metadata.isNode && child.__rbs.metadata.isNode) {
       // TODO: consider add option for setParent(), which parents and maintains mesh pos/rot in world space
       // child.setParent(parent)
@@ -29,8 +29,6 @@ export default class CameraLifecycleListener implements LifecycleListener<Camera
       console.error('Missing instance');
       return;
     }
-
-    console.log('camera mounted:', instance);
 
     // prevent default unless explicitly specified.
     const camera = instance as any as Camera

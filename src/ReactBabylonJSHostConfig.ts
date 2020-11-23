@@ -35,8 +35,6 @@ type Props = {
 } & any
 
 export type Container = {
-    engine: Nullable<Engine>
-    canvas: Nullable<HTMLCanvasElement | WebGLRenderingContext>
     scene: Nullable<Scene>
     rootInstance: DecoratedInstance<unknown>
 }
@@ -196,22 +194,7 @@ const ReactBabylonJSHostConfig: HostConfig<
     getRootHostContext: (rootContainerInstance: Container): HostContext => {
         // this is the context you pass to your chilren, as parameter 'parentHostContext' from "root".
         // So, opportunity to share context here via HostConfig further up tree.
-        return {
-            canvas: rootContainerInstance.canvas,
-            engine: rootContainerInstance.engine,
-            scene: rootContainerInstance.scene,
-            rootInstance: {
-                __rbs: {
-                    metadata: {
-                        className: "rootContainer",
-                        namespace: "ignore"
-                    },
-                    parent: null,
-                    children: [], // we add root notes here
-                    customProps: {}
-                }
-            } as DecoratedInstance<unknown>
-        }
+        return rootContainerInstance;
     },
 
     // this is the context you pass down to children.  without this root will not be available to attach to in appendChildToContainer.
@@ -283,8 +266,7 @@ const ReactBabylonJSHostConfig: HostConfig<
         // TODO: Make a registry like React Native host config or just build a map in /customHosts/index.ts.
         const customTypes: string[] = [CUSTOM_HOSTS.HostWithEvents]
 
-        // TODO: Check source for difference between hostContext and rootContainerInstance.
-        const { canvas, engine, scene } = rootContainerInstance
+        const { scene } = rootContainerInstance
 
         if (customTypes.indexOf(type) !== -1) {
             let metadata = {
@@ -300,7 +282,7 @@ const ReactBabylonJSHostConfig: HostConfig<
                     children: [],
                     propsHandlers: undefined,
                     customProps: {},
-                    lifecycleListener: new (CUSTOM_HOSTS as any)[type + "Fiber"](scene, engine, props)
+                    lifecycleListener: new (CUSTOM_HOSTS as any)[type + "Fiber"](scene, scene!.getEngine(), props)
                 }
             }
 
@@ -449,7 +431,7 @@ const ReactBabylonJSHostConfig: HostConfig<
         } else if (metadata.isGUI2DControl === true) {
             lifecycleListener = new CUSTOM_HOSTS.GUI2DControlLifecycleListener();
         } else if (metadata.isCamera === true) {
-            lifecycleListener = new CUSTOM_HOSTS.CameraLifecycleListener(scene, props, canvas as HTMLCanvasElement);
+            lifecycleListener = new CUSTOM_HOSTS.CameraLifecycleListener(scene, props, scene!.getEngine().getRenderingCanvas() as HTMLCanvasElement);
         } else if (metadata.isNode) {
             lifecycleListener = new CUSTOM_HOSTS.NodeLifecycleListener();
         } else if (metadata.isBehavior) {

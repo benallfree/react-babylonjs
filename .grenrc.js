@@ -4,5 +4,5 @@ module.exports = {
     includeMessages: 'all',
     ignoreCommitsWith: ['release.yml', ':package:'],
     ignoreTagsWith: ['beta', 'v2.2.15'],
-    changelogFilename: 'CHANGELOG.md'
+    changelogFilename: 'docs/CHANGELOG.md'
 }
